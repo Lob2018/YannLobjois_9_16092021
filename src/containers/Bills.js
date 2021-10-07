@@ -51,7 +51,6 @@ export default class {
                         })
                         .map(item => {
                             const stock = item.date;
-                            console.log(stock)
                             item.date = formatDate(stock);
                             if (stock == item.date) {
                                 console.log('RangeError: Invalid time value for', item)
