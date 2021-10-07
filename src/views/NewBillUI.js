@@ -2,7 +2,7 @@ import VerticalLayout from './VerticalLayout.js'
 
 export default () => {
 
-  return (`
+    return (`
     <div class='layout'>
       ${VerticalLayout(120)}
       <div class='content'>
@@ -55,7 +55,8 @@ export default () => {
                   </div>
                   <div class="col-half">
                     <label for="file" class="bold-label">Justificatif</label>
-                    <input required type="file" class="form-control blue-border" data-testid="file" />
+                    <input required type="file" accept="image/png, image/jpg, image/jpeg" class="form-control blue-border" data-testid="file" />
+                    <div class="invalid-feedback">Le fichier doit-être au format image (PNG,JPEG,JPG)</div>
                   </div>
                 </div>
             </div>

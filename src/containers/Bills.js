@@ -21,10 +21,9 @@ export default class {
     }
 
     handleClickIconEye = (icon) => {
-        const billUrl = icon.getAttribute("data-bill-url")
-        const imgWidth = Math.floor($('#modaleFile').width() * 0.5)
-        $('#modaleFile').find(".modal-body").html(`<div style='text-align: center;'><img width=${imgWidth} src=${billUrl} /></div>`)
-        $('#modaleFile').modal('show')
+        const billUrl = icon.getAttribute("data-bill-url");
+        $('#modaleFile').find(".modal-body").html(`<div style='text-align: center;'><img style='width:100%' src=${billUrl} /></div>`);
+        $('#modaleFile').modal('show');
     }
 
     // not need to cover this function by tests
@@ -52,6 +51,7 @@ export default class {
                         })
                         .map(item => {
                             const stock = item.date;
+                            console.log(stock)
                             item.date = formatDate(stock);
                             if (stock == item.date) {
                                 console.log('RangeError: Invalid time value for', item)
