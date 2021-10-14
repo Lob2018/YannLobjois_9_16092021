@@ -1,6 +1,8 @@
 import { ROUTES_PATH } from '../constants/routes.js'
-import { formatDate, formatStatus } from "../app/format.js"
 import Logout from "./Logout.js"
+
+import { formatStatus } from "../app/format.js"
+
 
 export default class {
     constructor({ document, onNavigate, firestore, localStorage }) {
@@ -38,29 +40,29 @@ export default class {
                 .then(snapshot => {
                     const bills = snapshot.docs
                         .map(doc => {
-                            return {
-                                ...doc.data(),
-                                status: formatStatus(doc.data().status)
+                            try {
+                                return {
+                                    ...doc.data(),
+                                    date: doc.data().date,
+                                    status: formatStatus(doc.data().status)
+                                }
+                            } catch (e) {
+                                // if for some reason, corrupted data was introduced, we manage here failing formatDate function
+                                // log the error and return unformatted date in that case
+                                console.log(e, 'for', doc.data())
+                                return {
+                                    ...doc.data(),
+                                    date: doc.data().date,
+                                    status: formatStatus(doc.data().status)
+                                }
                             }
                         })
                         .filter(bill => bill.email === userEmail)
-                        .sort((a, b) => {
-                            let da = new Date(a.date),
-                                db = new Date(b.date);
-                            return db - da
-                        })
-                        .map(item => {
-                            const stock = item.date;
-                            item.date = formatDate(stock);
-                            if (stock == item.date) {
-                                console.log('RangeError: Invalid time value for', item)
-                            }
-                            return item;
-                        });
                     console.log('length', bills.length)
-                    return bills;
+                    return bills
                 })
                 .catch(error => error)
         }
     }
+
 }
