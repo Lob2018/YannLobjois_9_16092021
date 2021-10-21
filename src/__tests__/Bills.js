@@ -9,6 +9,8 @@ import Router from "../app/Router";
 import Bills from "../containers/Bills.js";
 import userEvent from "@testing-library/user-event";
 import { ROUTES } from "../constants/routes.js";
+import { fireEvent } from "@testing-library/dom"
+
 
 
 
@@ -101,21 +103,25 @@ describe("Given I am connected as an employee", () => {
                 const html = BillsUI({ data: bills });
                 document.body.innerHTML = html;
                 // Mock the handleClickNewBill's method
-                const clickNewBill = jest.fn((e) => billsContainer.handleClickNewBill(e));
+                const handleClickNewBill = jest.fn((e) => billsContainer.handleClickNewBill(e));
                 // Get the new bill's button
                 const newBillButton = screen.getByTestId("btn-new-bill");
-                // Attach the event listener for the click
-                newBillButton.addEventListener("click", clickNewBill);
-                // Simulate a click on new bill
-                userEvent.click(newBillButton);
+                // Add click event
+                newBillButton.addEventListener("click", handleClickNewBill);
+                // Fire click event
+                fireEvent.click(newBillButton)
 
-                expect(clickNewBill).toHaveBeenCalledTimes(1);
+                expect(handleClickNewBill).toHaveBeenCalledTimes(1);
             });
         });
 
         // #2 composant container/Bills
         describe("When I click on first eye icon", () => {
             test("Then modal should open", () => {
+
+                // Load the data
+                const html = BillsUI({ data: bills });
+                document.body.innerHTML = html;
 
                 const onNavigate = (pathname) => {
                     document.body.innerHTML = ROUTES({ pathname });
@@ -126,25 +132,24 @@ describe("Given I am connected as an employee", () => {
                     localStorage: null,
                     firestore: null,
                 });
-                const html = BillsUI({ data: bills });
-                document.body.innerHTML = html;
 
                 // Mock the Bootstrap jQuery modal prototype
                 $.fn.modal = jest.fn();
 
+                // Mock the handleClickIconEye method
+                const handleClickIconEye = jest.fn(() => {
+                    billsContainer.handleClickIconEye
+                });
+
                 // Get the first bill icon-eye button
                 const firstEyeIcon = screen.getAllByTestId("icon-eye")[0];
-                // Mock the handleClickIconEye method
-                const clickIconEye = jest.fn(
-                    billsContainer.handleClickIconEye(firstEyeIcon)
-                );
-                // Add firstEyeIcon's event listener, to launch the mocked handleClickIconEye method
-                firstEyeIcon.addEventListener("click", clickIconEye);
-                // Simulate the click on firstEyeIcon
-                userEvent.click(firstEyeIcon);
+                // Add click event
+                firstEyeIcon.addEventListener("click", handleClickIconEye);
+                // Fire click event
+                fireEvent.click(firstEyeIcon)
 
-                expect($.fn.modal).toHaveBeenCalled;
-                expect(clickIconEye).toHaveBeenCalledTimes(1);
+                expect(handleClickIconEye).toHaveBeenCalledTimes(1);
+                expect($.fn.modal).toHaveBeenCalledTimes(1);
             });
         });
     })
