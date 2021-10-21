@@ -7,7 +7,6 @@ import { localStorageMock } from "../__mocks__/localStorage.js"
 import Router from "../app/Router";
 
 import Bills from "../containers/Bills.js";
-import userEvent from "@testing-library/user-event";
 import { ROUTES } from "../constants/routes.js";
 import { fireEvent } from "@testing-library/dom"
 

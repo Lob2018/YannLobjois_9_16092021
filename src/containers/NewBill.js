@@ -16,8 +16,12 @@ export default class NewBill {
     }
     handleChangeFile = e => {
         const inputFileElement = this.document.querySelector(`input[data-testid="file"]`);
-        this.filePath = e.target.value.split(/\\/g)
+        console.log(inputFileElement.value)
+        this.filePath = inputFileElement.value.split(/\\/g)
+        console.log(this.filePath)
         this.fileName = this.filePath[this.filePath.length - 1]
+        console.log(this.fileName)
+
         const imageRegex = /\.(jpe?g|png)$/;
 
         if (imageRegex.test(this.fileName)) {
@@ -27,43 +31,68 @@ export default class NewBill {
             inputFileElement.value = null;
         }
     }
+
+
+    // handleSubmit = e => {
+    //     e.preventDefault();
+
+    //     const inputFileElement = this.document.querySelector(`input[data-testid="file"]`);
+    //     const file = inputFileElement.files[0]
+
+    //     this.firestore
+    //         .storage
+    //         .ref(`justificatifs/${this.fileName}`)
+    //         .put(file)
+    //         .then(snapshot => snapshot.ref.getDownloadURL())
+    //         .then(url => {
+    //             console.log('url :' + url)
+    //             this.fileUrl = url
+    //         }).then(() => {
+    //             console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+    //             const email = JSON.parse(localStorage.getItem("user")).email
+
+    //             const bill = {
+    //                 email,
+    //                 type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
+    //                 name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
+    //                 amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
+    //                 date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
+    //                 vat: e.target.querySelector(`input[data-testid="vat"]`).value,
+    //                 pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
+    //                 commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
+    //                 fileUrl: this.fileUrl,
+    //                 fileName: this.fileName,
+    //                 status: 'pending'
+    //             }
+    //             this.createBill(bill)
+    //             this.onNavigate(ROUTES_PATH['Bills'])
+    //         })
+    // }
+
     handleSubmit = e => {
         e.preventDefault();
-
-        const inputFileElement = this.document.querySelector(`input[data-testid="file"]`);
-        const file = inputFileElement.files[0]
-
-        this.firestore
-            .storage
-            .ref(`justificatifs/${this.fileName}`)
-            .put(file)
-            .then(snapshot => snapshot.ref.getDownloadURL())
-            .then(url => {
-                console.log('url :' + url)
-                this.fileUrl = url
-            }).then(() => {
-                console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
-                const email = JSON.parse(localStorage.getItem("user")).email
-
-                const bill = {
-                    email,
-                    type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-                    name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
-                    amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
-                    date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
-                    vat: e.target.querySelector(`input[data-testid="vat"]`).value,
-                    pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
-                    commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
-                    fileUrl: this.fileUrl,
-                    fileName: this.fileName,
-                    status: 'pending'
-                }
-                this.createBill(bill)
-                this.onNavigate(ROUTES_PATH['Bills'])
-            })
+        console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+        const email = JSON.parse(localStorage.getItem("user")).email
+        const bill = {
+            email,
+            type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
+            name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
+            amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
+            date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
+            vat: parseInt(e.target.querySelector(`input[data-testid="vat"]`).value),
+            pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
+            commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
+            fileUrl: this.fileUrl,
+            fileName: this.fileName,
+            status: 'pending'
+        }
+        this.createBill(bill)
+        this.onNavigate(ROUTES_PATH['Bills'])
     }
 
+
     // not need to cover this function by tests
+    /* istanbul ignore next */
     createBill = (bill) => {
         if (this.firestore) {
             this.firestore
