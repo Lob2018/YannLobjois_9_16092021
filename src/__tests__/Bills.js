@@ -32,15 +32,16 @@ describe("Given I am connected as an employee", () => {
     })
     describe("When I am on Bills Page", () => {
         test("Then bill icon in vertical layout should be highlighted", () => {
+            // Jest's simulation module for the Firestore's class
             // mock the Firestore's class
             jest.mock("../app/Firestore");
             // set the bills from firebase local values
             firestore.bills = () => ({
-                get: jest.fn().mockResolvedValue(),
+                get: jest.fn().mockResolvedValue()
             });
             // define the window object localStorage
             Object.defineProperty(window, 'localStorage', { value: localStorageMock });
-            // define the user's object properties
+            // define the user's object property
             const user = JSON.stringify({
                 type: 'Employee'
             });
@@ -85,25 +86,27 @@ describe("Given I am connected as an employee", () => {
         // #2 composant container/Bills
         describe("When I click on new bill button", () => {
             test("Then I should be redirected to New Bill page", () => {
-
+                // needed for the Bills object
                 const onNavigate = (pathname) => {
                     document.body.innerHTML = ROUTES({ pathname })
-                }
-
+                };
+                // Create a Bills object
                 const billsContainer = new Bills({
                     document,
                     onNavigate,
                     localStorage: null,
                     firestore: null,
                 });
-
+                // Call the bills UI and pass the data
                 const html = BillsUI({ data: bills });
                 document.body.innerHTML = html;
-
+                // Mock the handleClickNewBill's method
                 const clickNewBill = jest.fn((e) => billsContainer.handleClickNewBill(e));
-
+                // Get the new bill's button
                 const newBillButton = screen.getByTestId("btn-new-bill");
+                // Attach the event listener for the click
                 newBillButton.addEventListener("click", clickNewBill);
+                // Simulate a click on new bill
                 userEvent.click(newBillButton);
 
                 expect(clickNewBill).toHaveBeenCalledTimes(1);
@@ -113,26 +116,31 @@ describe("Given I am connected as an employee", () => {
         // #2 composant container/Bills
         describe("When I click on first eye icon", () => {
             test("Then modal should open", () => {
-                const html = BillsUI({ data: bills });
-                document.body.innerHTML = html;
 
                 const onNavigate = (pathname) => {
                     document.body.innerHTML = ROUTES({ pathname });
                 };
-
                 const billsContainer = new Bills({
                     document,
                     onNavigate,
                     localStorage: null,
                     firestore: null,
                 });
+                const html = BillsUI({ data: bills });
+                document.body.innerHTML = html;
 
+                // Mock the Bootstrap jQuery modal prototype
                 $.fn.modal = jest.fn();
+
+                // Get the first bill icon-eye button
                 const firstEyeIcon = screen.getAllByTestId("icon-eye")[0];
+                // Mock the handleClickIconEye method
                 const clickIconEye = jest.fn(
                     billsContainer.handleClickIconEye(firstEyeIcon)
                 );
+                // Add firstEyeIcon's event listener, to launch the mocked handleClickIconEye method
                 firstEyeIcon.addEventListener("click", clickIconEye);
+                // Simulate the click on firstEyeIcon
                 userEvent.click(firstEyeIcon);
 
                 expect($.fn.modal).toHaveBeenCalled;
