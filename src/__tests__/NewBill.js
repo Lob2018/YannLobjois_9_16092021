@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { localStorageMock } from "../__mocks__/localStorage";
 import firebase from "../__mocks__/firebase.js";
 import firestore from "../app/Firestore.js";
-import { fireEvent } from "@testing-library/dom"
+import { fireEvent } from "@testing-library/dom";
 
 
 import BillsUI from "../views/BillsUI.js";
@@ -30,7 +30,7 @@ describe("Given I am connected as an employee", () => {
             expect(screen.getByRole("button")).toBeTruthy();
         })
         describe("When I upload an image in file input", () => {
-            test("Then one file should be uploaded", () => {
+            test("Then one file should be uploaded without error", () => {
                 const html = NewBillUI()
                 document.body.innerHTML = html
 
@@ -45,13 +45,12 @@ describe("Given I am connected as an employee", () => {
                     firestore: null,
                     localStorage: null,
                 });
+                const file = new File(['image.jpeg'],
+                    'image.jpeg', { type: 'image/jpeg' });
 
                 const changeFile = jest.fn(newBillContainer.handleChangeFile);
                 const input = screen.getByTestId("file")
                 input.addEventListener("change", changeFile);
-
-                const file = new File(['image.jpeg'],
-                    'image.jpeg', { type: 'image/jpeg' });
 
                 userEvent.upload(input, file);
 
@@ -59,8 +58,41 @@ describe("Given I am connected as an employee", () => {
                 expect(input.files).toHaveLength(1)
                 expect(input.files[0].name).toBe('image.jpeg');
                 expect(changeFile).toHaveBeenCalled();
+                expect(input.classList.contains('is-invalid')).toBe(false)
             })
         })
+        describe("When I upload something other than an image in file input", () => {
+            test("Then one file should be uploaded with an error", () => {
+                const html = NewBillUI()
+                document.body.innerHTML = html
+
+                // needed for the NewBill object
+                const onNavigate = (pathname) => {
+                    document.body.innerHTML = ROUTES({ pathname })
+                };
+                // Create a NewBill object
+                const newBillContainer = new NewBill({
+                    document,
+                    onNavigate,
+                    firestore: null,
+                    localStorage: null,
+                });
+                const file = new File(['document.pdf'],
+                    'document.pdf', { type: 'application/pdf' });
+
+                const changeFile = jest.fn(newBillContainer.handleChangeFile);
+                const input = screen.getByTestId("file")
+                input.addEventListener("change", changeFile);
+
+                userEvent.upload(input, file);
+
+                expect(input.files[0]).toStrictEqual(file)
+                expect(input.files).toHaveLength(1)
+                expect(input.files[0].name).toBe('document.pdf');
+                expect(changeFile).toHaveBeenCalled();
+                expect(input.classList.contains('is-invalid')).toBe(true)
+            })
+        });
         describe("When I submit the form completed", () => {
             test("Then the bill is created", async() => {
                 const html = NewBillUI()
@@ -93,7 +125,7 @@ describe("Given I am connected as an employee", () => {
                     pct: 10,
                     commentary: "Test",
                     fileUrl: "https://en.wikipedia.org/wiki/File:Chrome-crash.png",
-                    fileName: "logo.png",
+                    fileName: "Chrome-crash.png",
                 };
 
                 screen.getByTestId("expense-type").value = validBill.type;

@@ -31,9 +31,9 @@ const rows = (data) => {
         .map(item => {
             const stock = item.date;
             item.date = formatDate(stock);
-            if (stock == item.date) {
-                console.log('RangeError: Invalid time value for', item)
-            }
+            // if (stock == item.date) {
+            //     console.log('RangeError: Invalid time value for', item)
+            // }
             return item;
         }).map(bill => row(bill))
         .join("") : ""

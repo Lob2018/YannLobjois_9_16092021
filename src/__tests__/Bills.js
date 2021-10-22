@@ -39,7 +39,7 @@ describe("Given I am connected as an employee", () => {
             // Jest's simulation module for the Firestore's class
             // mock the Firestore's class
             jest.mock("../app/Firestore");
-            // set the bills from firebase local values
+            // get the bills from firestore
             firestore.bills = () => ({
                 get: jest.fn().mockResolvedValue()
             });
