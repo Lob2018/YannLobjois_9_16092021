@@ -1,16 +1,13 @@
 import { screen } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
-import NewBill from "../containers/NewBill.js"
 import userEvent from "@testing-library/user-event";
 import { localStorageMock } from "../__mocks__/localStorage";
 import firebase from "../__mocks__/firebase.js";
-import firestore from "../app/Firestore.js";
 import Router from "../app/Router";
 
 import { fireEvent } from "@testing-library/dom";
 
 
-import BillsUI from "../views/BillsUI.js";
 
 
 describe("Given I am connected as an employee", () => {
@@ -33,68 +30,74 @@ describe("Given I am connected as an employee", () => {
         })
         describe("When I upload an image in file input", () => {
             test("Then one file should be uploaded without error", () => {
-                const html = NewBillUI()
-                document.body.innerHTML = html
-
-                // needed for the NewBill object
-                const onNavigate = (pathname) => {
-                    document.body.innerHTML = ROUTES({ pathname })
-                };
-                // Create a NewBill object
-                const newBillContainer = new NewBill({
-                    document,
-                    onNavigate,
-                    firestore: null,
-                    localStorage: null,
+                // define the window object localStorage
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+                // define the user's object property
+                const user = JSON.stringify({
+                    type: 'Employee',
+                    email: "azerty@email.com",
                 });
+                // set localStorage user's type as Employee with email
+                window.localStorage.setItem('user', user);
+                // define the window object location to the employee's new bill
+                Object.defineProperty(window, 'location', {
+                    value: {
+                        pathname: '/',
+                        hash: '#employee/bill/new',
+                    },
+                });
+                // needed for the router object
+                document.body.innerHTML = `<div id="root"></div>`;
+                // call the router to route to #employee/bill/new
+                Router();
+
                 const file = new File(['image.jpeg'],
                     'image.jpeg', { type: 'image/jpeg' });
+                const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
 
-                const changeFile = jest.fn(newBillContainer.handleChangeFile);
                 const input = screen.getByTestId("file")
-                input.addEventListener("change", changeFile);
-
-                userEvent.upload(input, file);
-
                 expect(input.files[0]).toStrictEqual(file)
                 expect(input.files).toHaveLength(1)
                 expect(input.files[0].name).toBe('image.jpeg');
-                expect(changeFile).toHaveBeenCalled();
+                expect(changeFile).toBeTruthy();
                 expect(input.classList.contains('is-invalid')).toBe(false)
             })
         })
         describe("When I upload something other than an image in file input", () => {
             test("Then one file should be uploaded with an error", () => {
-                const html = NewBillUI()
-                document.body.innerHTML = html
-
-                // needed for the NewBill object
-                const onNavigate = (pathname) => {
-                    document.body.innerHTML = ROUTES({ pathname })
-                };
-                // Create a NewBill object
-                const newBillContainer = new NewBill({
-                    document,
-                    onNavigate,
-                    firestore: null,
-                    localStorage: null,
+                // define the window object localStorage
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+                // define the user's object property
+                const user = JSON.stringify({
+                    type: 'Employee',
+                    email: "azerty@email.com",
                 });
+                // set localStorage user's type as Employee with email
+                window.localStorage.setItem('user', user);
+                // define the window object location to the employee's new bill
+                Object.defineProperty(window, 'location', {
+                    value: {
+                        pathname: '/',
+                        hash: '#employee/bill/new',
+                    },
+                });
+                // needed for the router object
+                document.body.innerHTML = `<div id="root"></div>`;
+                // call the router to route to #employee/bill/new
+                Router();
+
                 const file = new File(['document.pdf'],
                     'document.pdf', { type: 'application/pdf' });
+                const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
 
-                const changeFile = jest.fn(newBillContainer.handleChangeFile);
                 const input = screen.getByTestId("file")
-                input.addEventListener("change", changeFile);
-
-                userEvent.upload(input, file);
-
                 expect(input.files[0]).toStrictEqual(file)
                 expect(input.files).toHaveLength(1)
                 expect(input.files[0].name).toBe('document.pdf');
-                expect(changeFile).toHaveBeenCalled();
+                expect(changeFile).toBeTruthy();
                 expect(input.classList.contains('is-invalid')).toBe(true)
             })
-        });
+        })
         describe("When I submit the form completed", () => {
             test("Then the bill is created", async() => {
 
@@ -139,7 +142,7 @@ describe("Given I am connected as an employee", () => {
                 // Upload filename and fileurl
                 const file = new File(['logo.png'],
                     'logo.png', { type: 'image/png' });
-                fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
+                const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
                 // Load the values in fields
                 screen.getByTestId("expense-type").value = validBill.type;
                 screen.getByTestId("expense-name").value = validBill.name;
@@ -161,12 +164,11 @@ describe("Given I am connected as an employee", () => {
                 userEvent.click(screen.getByRole("button"))
 
                 expect(onSubmit).toHaveBeenCalledTimes(1);
+                expect(changeFile).toBeTruthy();
                 expect(postBillTracked).toHaveBeenCalledWith({
                     validBill
-                });
-
+                })
             })
-
         })
 
         // #3 composant container/NewBill POST new bill
