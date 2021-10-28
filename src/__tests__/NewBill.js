@@ -123,6 +123,15 @@ describe("Given I am connected as an employee", () => {
                 // call the router to route to #employee/bill/new
                 Router();
 
+
+
+
+
+                let fileString = '../img/0.jpg';
+                const blob = Promise.resolve(fileString).then(res => {
+                    return res.blob();
+                });
+
                 const validBill = {
                     type: "Equipement et matériel",
                     name: "Clavier-test",
@@ -131,15 +140,21 @@ describe("Given I am connected as an employee", () => {
                     vat: 10,
                     pct: 10,
                     commentary: "Test",
-                    fileUrl: "https://en.wikipedia.org/wiki/File:Chrome-crash.png",
-                    fileName: "logo.png",
+                    fileUrl: fileString,
+                    fileName: "0.jpg",
                     email: "azerty@email.com",
                     status: "pending"
                 };
 
+                const file = new File([blob], '0.jpg');
+
                 // Upload filename and fileurl
-                const file = new File(['logo.png'],
-                    'logo.png', { type: 'image/png' });
+                // const file = new File(['logo.png'],
+                //     'logo.png', { type: 'image/png' });
+
+                // Get the form
+                const form = screen.getByTestId("form-new-bill");
+
                 const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
                 // Load the values in fields
                 screen.getByTestId("expense-type").value = validBill.type;
@@ -150,18 +165,17 @@ describe("Given I am connected as an employee", () => {
                 screen.getByTestId("pct").value = validBill.pct;
                 screen.getByTestId("commentary").value = validBill.commentary;
 
-                // Get the form
-                const form = screen.getByTestId("form-new-bill");
+
 
                 // Mock the handleSubmit object
-                const onSubmit = jest.fn(() => {
-                    form.handleSubmit
-                });
+                // const onSubmit = jest.fn(() => {
+                //     form.handleSubmit
+                // });
 
                 // Fire click event                
                 userEvent.click(screen.getByRole("button"))
 
-                expect(onSubmit).toHaveBeenCalledTimes(1);
+                // expect(onSubmit).toHaveBeenCalledTimes(1);
                 expect(changeFile).toBeTruthy();
                 expect(postBillTracked).toHaveBeenCalledWith({
                     validBill
