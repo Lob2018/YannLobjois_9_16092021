@@ -5,6 +5,8 @@ import userEvent from "@testing-library/user-event";
 import { localStorageMock } from "../__mocks__/localStorage";
 import firebase from "../__mocks__/firebase.js";
 import firestore from "../app/Firestore.js";
+import Router from "../app/Router";
+
 import { fireEvent } from "@testing-library/dom";
 
 
@@ -95,26 +97,30 @@ describe("Given I am connected as an employee", () => {
         });
         describe("When I submit the form completed", () => {
             test("Then the bill is created", async() => {
-                const html = NewBillUI()
-                document.body.innerHTML = html
+
+                // Track calls to the post method
+                const postBillTracked = jest.spyOn(firebase, "post")
 
                 // define the window object localStorage
                 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
-
-                window.localStorage.setItem(
-                    "user",
-                    JSON.stringify({
-                        type: "Employee",
-                        email: "azerty@email.com",
-                    })
-                );
-
-                const newBill = new NewBill({
-                    document,
-                    onNavigate: () => {},
-                    firestore,
-                    localStorage: window.localStorage,
+                // define the user's object property
+                const user = JSON.stringify({
+                    type: 'Employee',
+                    email: "azerty@email.com",
                 });
+                // set localStorage user's type as Employee with email
+                window.localStorage.setItem('user', user);
+                // define the window object location to the employee's new bill
+                Object.defineProperty(window, 'location', {
+                    value: {
+                        pathname: '/',
+                        hash: '#employee/bill/new',
+                    },
+                });
+                // needed for the router object
+                document.body.innerHTML = `<div id="root"></div>`;
+                // call the router to route to #employee/bill/new
+                Router();
 
                 const validBill = {
                     type: "Equipement et matériel",
@@ -125,9 +131,16 @@ describe("Given I am connected as an employee", () => {
                     pct: 10,
                     commentary: "Test",
                     fileUrl: "https://en.wikipedia.org/wiki/File:Chrome-crash.png",
-                    fileName: "Chrome-crash.png",
+                    fileName: "logo.png",
+                    email: "azerty@email.com",
+                    status: "pending"
                 };
 
+                // Upload filename and fileurl
+                const file = new File(['logo.png'],
+                    'logo.png', { type: 'image/png' });
+                fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
+                // Load the values in fields
                 screen.getByTestId("expense-type").value = validBill.type;
                 screen.getByTestId("expense-name").value = validBill.name;
                 screen.getByTestId("datepicker").value = validBill.date;
@@ -135,26 +148,23 @@ describe("Given I am connected as an employee", () => {
                 screen.getByTestId("vat").value = validBill.vat;
                 screen.getByTestId("pct").value = validBill.pct;
                 screen.getByTestId("commentary").value = validBill.commentary;
-                newBill.fileName = validBill.fileName;
-                newBill.fileUrl = validBill.fileUrl;
 
-                newBill.createBill = jest.fn();
-
-                const onSubmit = jest.fn(() => {
-                    newBill.handleSubmit
-                });
-
+                // Get the form
                 const form = screen.getByTestId("form-new-bill");
-                form.addEventListener("submit", onSubmit);
 
-                // Fire click event
-                fireEvent.click(screen.getByRole("button"))
-
-                expect(onSubmit).toHaveBeenCalled();
-                expect(newBill.createBill).toHaveBeenCalledWith({
-                    ...validBill,
-                    status: "pending",
+                // Mock the handleSubmit object
+                const onSubmit = jest.fn(() => {
+                    form.handleSubmit
                 });
+
+                // Fire click event                
+                userEvent.click(screen.getByRole("button"))
+
+                expect(onSubmit).toHaveBeenCalledTimes(1);
+                expect(postBillTracked).toHaveBeenCalledWith({
+                    validBill
+                });
+
             })
 
         })
@@ -162,42 +172,24 @@ describe("Given I am connected as an employee", () => {
         // #3 composant container/NewBill POST new bill
         describe("When I submit the bill's form", () => {
             test("POST bill from mock API with success", async() => {
-                    const postBill = jest.spyOn(firebase, "post")
-                    const validBill = {
-                        type: "Equipement et matériel",
-                        name: "Clavier-test",
-                        date: "2021-10-20",
-                        amount: 10,
-                        vat: 10,
-                        pct: 10,
-                        commentary: "Test",
-                        fileUrl: "https://en.wikipedia.org/wiki/File:Chrome-crash.png",
-                        fileName: "logo.png",
-                        email: "azerty@email.com",
-                        status: "pending"
-                    };
-                    const bills = await firebase.post(validBill);
-                    expect(postBill).toBeCalled();
-                    expect(bills.data.length).toBe(5);
-                })
-                // test("POST bill from an API and fails with 404 message error", async() => {
-                //     firebase.post.mockImplementationOnce(() =>
-                //         Promise.reject(new Error("Erreur 404"))
-                //     )
-                //     const html = BillsUI({ error: "Erreur 404" })
-                //     document.body.innerHTML = html
-                //     const message = await screen.getByText(/Erreur 404/)
-                //     expect(message).toBeTruthy()
-                // })
-                // test("POST messages from an API and fails with 500 message error", async() => {
-                //     firebase.post.mockImplementationOnce(() =>
-                //         Promise.reject(new Error("Erreur 500"))
-                //     )
-                //     const html = BillsUI({ error: "Erreur 500" })
-                //     document.body.innerHTML = html
-                //     const message = await screen.getByText(/Erreur 500/)
-                //     expect(message).toBeTruthy()
-                // })
+                const postBill = jest.spyOn(firebase, "post")
+                const validBill = {
+                    type: "Equipement et matériel",
+                    name: "Clavier-test",
+                    date: "2021-10-20",
+                    amount: 10,
+                    vat: 10,
+                    pct: 10,
+                    commentary: "Test",
+                    fileUrl: "https://en.wikipedia.org/wiki/File:Chrome-crash.png",
+                    fileName: "logo.png",
+                    email: "azerty@email.com",
+                    status: "pending"
+                };
+                const bills = await firebase.post(validBill);
+                expect(postBill).toBeCalled();
+                expect(bills.data.length).toBe(5);
+            })
         })
     })
 })

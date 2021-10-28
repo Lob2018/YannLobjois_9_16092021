@@ -68,8 +68,6 @@ export default {
     },
     post: async(item) => {
         data.push(item)
-        return Promise.resolve({
-            data
-        })
+        return Promise.resolve({ data })
     }
 }
