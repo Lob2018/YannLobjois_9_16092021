@@ -8,8 +8,6 @@ import Router from "../app/Router";
 import { fireEvent } from "@testing-library/dom";
 
 
-
-
 describe("Given I am connected as an employee", () => {
 
     // #3 composant container/NewBill
