@@ -124,12 +124,11 @@ describe("Given I am connected as an employee", () => {
                 Router();
 
 
-
-
-
                 let fileString = '../img/0.jpg';
                 const blob = Promise.resolve(fileString).then(res => {
-                    return res.blob();
+                    return new Blob([res.body], {
+                        type: 'image/jpeg'
+                    })
                 });
 
                 const validBill = {
@@ -153,12 +152,16 @@ describe("Given I am connected as an employee", () => {
                 //     'logo.png', { type: 'image/png' });
 
                 // Get the form
-                const form = screen.getByTestId("form-new-bill");
+                //const form = screen.getByTestId("form-new-bill");
 
                 const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
+
+                console.log(document.body.querySelector(`input[data-testid="file"]`).files[0])
+
                 // Load the values in fields
                 screen.getByTestId("expense-type").value = validBill.type;
                 screen.getByTestId("expense-name").value = validBill.name;
+                // ISO 8601
                 screen.getByTestId("datepicker").value = validBill.date;
                 screen.getByTestId("amount").value = validBill.amount;
                 screen.getByTestId("vat").value = validBill.vat;
@@ -174,6 +177,10 @@ describe("Given I am connected as an employee", () => {
 
                 // Fire click event                
                 userEvent.click(screen.getByRole("button"))
+                    // const handleClick = jest.fn()
+                    // fireEvent.click(screen.getByRole("button"))
+                    // expect(handleClick).toHaveBeenCalledTimes(1)
+
 
                 // expect(onSubmit).toHaveBeenCalledTimes(1);
                 expect(changeFile).toBeTruthy();
