@@ -1,5 +1,7 @@
-import { screen } from "@testing-library/dom"
+import { getByTestId, getByText, screen } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
+import NewBill from "../containers/NewBill.js"
+
 import userEvent from "@testing-library/user-event";
 import { localStorageMock } from "../__mocks__/localStorage";
 import firebase from "../__mocks__/firebase.js";
@@ -99,37 +101,52 @@ describe("Given I am connected as an employee", () => {
         describe("When I submit the form completed", () => {
             test("Then the bill is created", async() => {
 
-                // Track calls to the post method
-                const postBillTracked = jest.spyOn(firebase, "post")
-
-                // define the window object localStorage
-                Object.defineProperty(window, 'localStorage', { value: localStorageMock });
-                // define the user's object property
-                const user = JSON.stringify({
-                    type: 'Employee',
-                    email: "azerty@email.com",
-                });
-                // set localStorage user's type as Employee with email
-                window.localStorage.setItem('user', user);
-                // define the window object location to the employee's new bill
                 Object.defineProperty(window, 'location', {
                     value: {
                         pathname: '/',
                         hash: '#employee/bill/new',
                     },
                 });
-                // needed for the router object
+
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+                window.localStorage.setItem('user', JSON.stringify({
+                    type: 'Employee',
+                    email: "azerty@email.com",
+                }))
+
                 document.body.innerHTML = `<div id="root"></div>`;
-                // call the router to route to #employee/bill/new
+
                 Router();
 
+                const onNavigate = (pathname) => {
+                    document.body.innerHTML = ROUTES({ pathname })
+                }
+                const newBill = new NewBill({
+                    document,
+                    onNavigate,
+                    firestore: null,
+                    localStorage: window.localStorage
+                })
 
-                let fileString = '../img/0.jpg';
-                const blob = Promise.resolve(fileString).then(res => {
-                    return new Blob([res.body], {
-                        type: 'image/jpeg'
-                    })
-                });
+                // const html = NewBillUI()
+
+                // document.body.innerHTML = html
+
+                const handleSubmit = jest.fn((e) => newBill.handleSubmit());
+
+                const file = new File(['(⌐□_□)'], 'test.jpg', { type: 'test/jpg' })
+
+                fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
+
+                const dataURL = screen.getByTestId('file').files[0].src
+                expect(dataURL).toMatchSnapshot(
+                    'data url in the image-preview src for this string: "(⌐□_□)"',
+                )
+
+                const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
+                expect(changeFile).toBeTruthy();
+
+                newBill.fileUrl = dataURL;
 
                 const validBill = {
                     type: "Equipement et matériel",
@@ -139,24 +156,12 @@ describe("Given I am connected as an employee", () => {
                     vat: 10,
                     pct: 10,
                     commentary: "Test",
-                    fileUrl: fileString,
-                    fileName: "0.jpg",
+                    fileUrl: dataURL,
+                    fileName: "test.jpg",
                     email: "azerty@email.com",
                     status: "pending"
                 };
 
-                const file = new File([blob], '0.jpg');
-
-                // Upload filename and fileurl
-                // const file = new File(['logo.png'],
-                //     'logo.png', { type: 'image/png' });
-
-                // Get the form
-                //const form = screen.getByTestId("form-new-bill");
-
-                const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
-
-                console.log(document.body.querySelector(`input[data-testid="file"]`).files[0])
 
                 // Load the values in fields
                 screen.getByTestId("expense-type").value = validBill.type;
@@ -168,23 +173,13 @@ describe("Given I am connected as an employee", () => {
                 screen.getByTestId("pct").value = validBill.pct;
                 screen.getByTestId("commentary").value = validBill.commentary;
 
+                const form = screen.getByTestId("form-new-bill");
 
+                userEvent.click(screen.getByText("Envoyer"))
 
-                // Mock the handleSubmit object
-                // const onSubmit = jest.fn(() => {
-                //     form.handleSubmit
-                // });
+                //expect(handleSubmit).toHaveBeenCalled()
 
-                // Fire click event                
-                userEvent.click(screen.getByRole("button"))
-                    // const handleClick = jest.fn()
-                    // fireEvent.click(screen.getByRole("button"))
-                    // expect(handleClick).toHaveBeenCalledTimes(1)
-
-
-                // expect(onSubmit).toHaveBeenCalledTimes(1);
-                expect(changeFile).toBeTruthy();
-                expect(postBillTracked).toHaveBeenCalledWith({
+                expect(handleSubmit).toHaveBeenCalledWith({
                     validBill
                 })
             })
