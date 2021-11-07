@@ -49,15 +49,10 @@ describe("Given I am connected as an employee", () => {
                 })
 
                 const changeFile = jest.fn(newBill.handleChangeFile);
-                const file = new File(['(⌐□_□)'], 'test.jpg', { type: 'image/jpg' })
+                const file = new File(['test.jpg'], 'test.jpg', { type: 'image/jpg' })
 
                 const input = screen.getByTestId("file")
                 input.addEventListener("change", changeFile);
-
-                // userEvent.upload(
-                //     input,
-                //     file
-                // );
 
                 fireEvent.change(input, { target: { files: [file] } })
 
@@ -95,10 +90,7 @@ describe("Given I am connected as an employee", () => {
                 const input = screen.getByTestId("file")
                 input.addEventListener("change", changeFile);
 
-                userEvent.upload(
-                    input,
-                    file
-                );
+                fireEvent.change(input, { target: { files: [file] } })
 
                 expect(changeFile).toHaveBeenCalled();
 
