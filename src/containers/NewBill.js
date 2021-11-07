@@ -15,21 +15,14 @@ export default class NewBill {
         this.fileName = null
         new Logout({ document, localStorage, onNavigate })
     }
-    handleChangeFile = e => {
-
-        console.log(e)
-
-        const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-        const filePath = e.target.value.split(/\\/g)
-        const fileName = filePath[filePath.length - 1]
-
-        const fileExtension = fileName.split(".").pop()
-        const acceptedExtensions = ["jpg", "jpeg", "png"]
-        const inputFileElement = this.document.querySelector(`input[data-testid="file"]`)
-
-        if (acceptedExtensions.includes(fileExtension)) {
-            inputFileElement.classList.remove('is-invalid')
-                /* istanbul ignore next */
+    handleChangeFile = (e) => {
+        e.target.classList.remove("is-invalid");
+        const filePath = e.target.files[0].name.split(/\\/g);
+        this.fileName = filePath[filePath.length - 1];
+        const fileName = filePath[filePath.length - 1];
+        const fileExtension = fileName.split(".").pop();
+        const formats = ["jpg", "jpeg", "png"];
+        if (formats.includes(fileExtension)) {
             this.firestore.storage
                 .ref(`justificatifs/${fileName}`)
                 .put(file)
@@ -39,9 +32,9 @@ export default class NewBill {
                     this.fileName = fileName;
                 });
         } else {
-            inputFileElement.classList.add('is-invalid');
+            e.target.classList.add("is-invalid");
         }
-    }
+    };
 
     handleSubmit = e => {
         e.preventDefault()
