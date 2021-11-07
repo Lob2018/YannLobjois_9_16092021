@@ -16,13 +16,18 @@ export default class NewBill {
         new Logout({ document, localStorage, onNavigate })
     }
     handleChangeFile = (e) => {
-        e.target.classList.remove("is-invalid");
-        const filePath = e.target.files[0].name.split(/\\/g);
-        this.fileName = filePath[filePath.length - 1];
+
+        const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+        const filePath = e.target.name.split(/\\/g)
         const fileName = filePath[filePath.length - 1];
         const fileExtension = fileName.split(".").pop();
         const formats = ["jpg", "jpeg", "png"];
+
+        const inputFileElement = this.document.querySelector(`input[data-testid="file"]`);
+
         if (formats.includes(fileExtension)) {
+            inputFileElement.classList.remove("is-invalid");
+            /* istanbul ignore next */
             this.firestore.storage
                 .ref(`justificatifs/${fileName}`)
                 .put(file)
@@ -32,7 +37,8 @@ export default class NewBill {
                     this.fileName = fileName;
                 });
         } else {
-            e.target.classList.add("is-invalid");
+            inputFileElement.classList.add("is-invalid");
+            inputFileElement.value = null;
         }
     };
 

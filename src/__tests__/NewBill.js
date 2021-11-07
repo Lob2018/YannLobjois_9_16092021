@@ -29,74 +29,74 @@ describe("Given I am connected as an employee", () => {
         describe("When I upload an image in file input", () => {
             test("Then one file should be uploaded without error", () => {
 
-                // document.body.innerHTML = NewBillUI();
-                // Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+                document.body.innerHTML = NewBillUI();
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
-                // Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-                // window.localStorage.setItem('user', JSON.stringify({
-                //     type: 'Employee',
-                //     email: "azerty@email.com",
-                // }))
-
-                // const onNavigate = (pathname) => {
-                //     document.body.innerHTML = ROUTES({ pathname })
-                // }
-                // const newBill = new NewBill({
-                //     document,
-                //     onNavigate,
-                //     firestore: null,
-                //     localStorage: window.localStorage
-                // })
-
-                // const changeFile = jest.fn(newBill.handleChangeFile);
-                // const file = new File(['test.jpg'], 'test.jpg', { type: 'image/jpg' })
-
-                // const input = screen.getByTestId("file")
-                // input.addEventListener("change", changeFile);
-
-                // fireEvent.change(input, { target: { files: [file] } })
-
-                // expect(changeFile).toHaveBeenCalled();
-
-                // expect(input.files[0]).toStrictEqual(file)
-                // expect(input.files).toHaveLength(1)
-                // expect(input.files[0].name).toBe('test.jpg');
-                // expect(input.classList.contains('is-invalid')).toBe(false)
-
-
-
-
-
-                // define the window object localStorage
-                Object.defineProperty(window, "localStorage", { value: localStorageMock });
-                // define the user's object property
-                const user = JSON.stringify({
-                    type: "Employee",
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+                window.localStorage.setItem('user', JSON.stringify({
+                    type: 'Employee',
                     email: "azerty@email.com",
-                });
-                // set localStorage user's type as Employee with email
-                window.localStorage.setItem("user", user);
-                // define the window object location to the employee's new bill
-                Object.defineProperty(window, "location", {
-                    value: {
-                        pathname: "/",
-                        hash: "#employee/bill/new",
-                    },
-                });
+                }))
+
+                const onNavigate = (pathname) => {
+                    document.body.innerHTML = ROUTES({ pathname })
+                }
                 const newBill = new NewBill({
                     document,
-                    onNavigate: () => {},
+                    onNavigate,
                     firestore: null,
-                    localStorage: window.localStorage,
-                });
-                document.body.innerHTML = NewBillUI();
-                const file = jest.fn((e) => newBill.handleChangeFile(e))
+                    localStorage: window.localStorage
+                })
+
+                const changeFile = jest.fn(newBill.handleChangeFile);
+                const file = new File(['test.jpg'], 'test.jpg', { type: 'image/jpg' })
+
                 const input = screen.getByTestId("file")
-                input.addEventListener("change", file)
-                const files = new File(["test.jpg"], "test.jpg", { type: "image/jpg" })
-                userEvent.upload(input, files)
-                expect(file).toHaveBeenCalled();
+                input.addEventListener("change", changeFile);
+
+                fireEvent.change(input, { target: { files: [file] } })
+
+                expect(changeFile).toHaveBeenCalled();
+
+                expect(input.files[0]).toStrictEqual(file)
+                expect(input.files).toHaveLength(1)
+                expect(input.files[0].name).toBe('test.jpg');
                 expect(input.classList.contains('is-invalid')).toBe(false)
+
+
+
+
+
+                // // define the window object localStorage
+                // Object.defineProperty(window, "localStorage", { value: localStorageMock });
+                // // define the user's object property
+                // const user = JSON.stringify({
+                //     type: "Employee",
+                //     email: "azerty@email.com",
+                // });
+                // // set localStorage user's type as Employee with email
+                // window.localStorage.setItem("user", user);
+                // // define the window object location to the employee's new bill
+                // Object.defineProperty(window, "location", {
+                //     value: {
+                //         pathname: "/",
+                //         hash: "#employee/bill/new",
+                //     },
+                // });
+                // const newBill = new NewBill({
+                //     document,
+                //     onNavigate: () => {},
+                //     firestore: null,
+                //     localStorage: window.localStorage,
+                // });
+                // document.body.innerHTML = NewBillUI();
+                // const file = jest.fn((e) => newBill.handleChangeFile(e))
+                // const input = screen.getByTestId("file")
+                // input.addEventListener("change", file)
+                // const files = new File(["test.jpg"], "test.jpg", { type: "image/jpg" })
+                // userEvent.upload(input, files)
+                // expect(file).toHaveBeenCalled();
+                // expect(input.classList.contains('is-invalid')).toBe(false)
 
 
             })
