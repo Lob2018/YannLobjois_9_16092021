@@ -1,14 +1,11 @@
-import { getByTestId, getByText, screen } from "@testing-library/dom"
+import { fireEvent, screen } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 
 import userEvent from "@testing-library/user-event";
 import { localStorageMock } from "../__mocks__/localStorage";
 import firebase from "../__mocks__/firebase.js";
-import Router from "../app/Router";
 import { ROUTES } from "../constants/routes"
-
-import { fireEvent } from "@testing-library/dom";
 
 
 describe("Given I am connected as an employee", () => {
@@ -31,6 +28,7 @@ describe("Given I am connected as an employee", () => {
         })
         describe("When I upload an image in file input", () => {
             test("Then one file should be uploaded without error", () => {
+
                 document.body.innerHTML = NewBillUI();
                 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
@@ -40,15 +38,31 @@ describe("Given I am connected as an employee", () => {
                     email: "azerty@email.com",
                 }))
 
-                const file = new File(['(⌐□_□)'], 'test.jpg', { type: 'image/jpg' })
-
-                fireEvent.change(screen.getByTestId("file"), {
-                    target: {
-                        files: [file],
-                    },
+                const onNavigate = (pathname) => {
+                    document.body.innerHTML = ROUTES({ pathname })
+                }
+                const newBill = new NewBill({
+                    document,
+                    onNavigate,
+                    firestore: null,
+                    localStorage: window.localStorage
                 })
 
+                const changeFile = jest.fn(newBill.handleChangeFile);
+                const file = new File(['(⌐□_□)'], 'test.jpg', { type: 'image/jpg' })
+
                 const input = screen.getByTestId("file")
+                input.addEventListener("change", changeFile);
+
+                // userEvent.upload(
+                //     input,
+                //     file
+                // );
+
+                fireEvent.change(input, { target: { files: [file] } })
+
+                expect(changeFile).toHaveBeenCalled();
+
                 expect(input.files[0]).toStrictEqual(file)
                 expect(input.files).toHaveLength(1)
                 expect(input.files[0].name).toBe('test.jpg');
@@ -65,16 +79,29 @@ describe("Given I am connected as an employee", () => {
                     type: 'Employee',
                     email: "azerty@email.com",
                 }))
-
-                const file = new File(['document.pdf'], 'document.pdf', { type: 'application/pdf' });
-
-                fireEvent.change(screen.getByTestId("file"), {
-                    target: {
-                        files: [file],
-                    },
+                const onNavigate = (pathname) => {
+                    document.body.innerHTML = ROUTES({ pathname })
+                }
+                const newBill = new NewBill({
+                    document,
+                    onNavigate,
+                    firestore: null,
+                    localStorage: window.localStorage
                 })
 
+                const changeFile = jest.fn(newBill.handleChangeFile);
+                const file = new File(['document.pdf'], 'document.pdf', { type: 'application/pdf' });
+
                 const input = screen.getByTestId("file")
+                input.addEventListener("change", changeFile);
+
+                userEvent.upload(
+                    input,
+                    file
+                );
+
+                expect(changeFile).toHaveBeenCalled();
+
                 expect(input.files[0]).toStrictEqual(file)
                 expect(input.files).toHaveLength(1)
                 expect(input.files[0].name).toBe('document.pdf');
