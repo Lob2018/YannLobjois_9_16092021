@@ -6,6 +6,7 @@ import userEvent from "@testing-library/user-event";
 import { localStorageMock } from "../__mocks__/localStorage";
 import firebase from "../__mocks__/firebase.js";
 import Router from "../app/Router";
+import { ROUTES } from "../constants/routes"
 
 import { fireEvent } from "@testing-library/dom";
 
@@ -30,83 +31,8 @@ describe("Given I am connected as an employee", () => {
         })
         describe("When I upload an image in file input", () => {
             test("Then one file should be uploaded without error", () => {
-                // define the window object localStorage
-                Object.defineProperty(window, 'localStorage', { value: localStorageMock });
-                // define the user's object property
-                const user = JSON.stringify({
-                    type: 'Employee',
-                    email: "azerty@email.com",
-                });
-                // set localStorage user's type as Employee with email
-                window.localStorage.setItem('user', user);
-                // define the window object location to the employee's new bill
-                Object.defineProperty(window, 'location', {
-                    value: {
-                        pathname: '/',
-                        hash: '#employee/bill/new',
-                    },
-                });
-                // needed for the router object
-                document.body.innerHTML = `<div id="root"></div>`;
-                // call the router to route to #employee/bill/new
-                Router();
-
-                const file = new File(['image.jpeg'],
-                    'image.jpeg', { type: 'image/jpeg' });
-                const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
-
-                const input = screen.getByTestId("file")
-                expect(input.files[0]).toStrictEqual(file)
-                expect(input.files).toHaveLength(1)
-                expect(input.files[0].name).toBe('image.jpeg');
-                expect(changeFile).toBeTruthy();
-                expect(input.classList.contains('is-invalid')).toBe(false)
-            })
-        })
-        describe("When I upload something other than an image in file input", () => {
-            test("Then one file should be uploaded with an error", () => {
-                // define the window object localStorage
-                Object.defineProperty(window, 'localStorage', { value: localStorageMock });
-                // define the user's object property
-                const user = JSON.stringify({
-                    type: 'Employee',
-                    email: "azerty@email.com",
-                });
-                // set localStorage user's type as Employee with email
-                window.localStorage.setItem('user', user);
-                // define the window object location to the employee's new bill
-                Object.defineProperty(window, 'location', {
-                    value: {
-                        pathname: '/',
-                        hash: '#employee/bill/new',
-                    },
-                });
-                // needed for the router object
-                document.body.innerHTML = `<div id="root"></div>`;
-                // call the router to route to #employee/bill/new
-                Router();
-
-                const file = new File(['document.pdf'],
-                    'document.pdf', { type: 'application/pdf' });
-                const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
-
-                const input = screen.getByTestId("file")
-                expect(input.files[0]).toStrictEqual(file)
-                expect(input.files).toHaveLength(1)
-                expect(input.files[0].name).toBe('document.pdf');
-                expect(changeFile).toBeTruthy();
-                expect(input.classList.contains('is-invalid')).toBe(true)
-            })
-        })
-        describe("When I submit the form completed", () => {
-            test("Then the bill is created", async() => {
-
-                Object.defineProperty(window, 'location', {
-                    value: {
-                        pathname: '/',
-                        hash: '#employee/bill/new',
-                    },
-                });
+                document.body.innerHTML = NewBillUI();
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
                 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
                 window.localStorage.setItem('user', JSON.stringify({
@@ -114,9 +40,58 @@ describe("Given I am connected as an employee", () => {
                     email: "azerty@email.com",
                 }))
 
-                document.body.innerHTML = `<div id="root"></div>`;
+                const file = new File(['(⌐□_□)'], 'test.jpg', { type: 'image/jpg' })
 
-                Router();
+                fireEvent.change(screen.getByTestId("file"), {
+                    target: {
+                        files: [file],
+                    },
+                })
+
+                const input = screen.getByTestId("file")
+                expect(input.files[0]).toStrictEqual(file)
+                expect(input.files).toHaveLength(1)
+                expect(input.files[0].name).toBe('test.jpg');
+                expect(input.classList.contains('is-invalid')).toBe(false)
+            })
+        })
+        describe("When I upload something other than an image in file input", () => {
+            test("Then one file should be uploaded with an error", () => {
+                document.body.innerHTML = NewBillUI();
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+                window.localStorage.setItem('user', JSON.stringify({
+                    type: 'Employee',
+                    email: "azerty@email.com",
+                }))
+
+                const file = new File(['document.pdf'], 'document.pdf', { type: 'application/pdf' });
+
+                fireEvent.change(screen.getByTestId("file"), {
+                    target: {
+                        files: [file],
+                    },
+                })
+
+                const input = screen.getByTestId("file")
+                expect(input.files[0]).toStrictEqual(file)
+                expect(input.files).toHaveLength(1)
+                expect(input.files[0].name).toBe('document.pdf');
+                expect(input.classList.contains('is-invalid')).toBe(true)
+            })
+        })
+        describe("When I submit the form completed", () => {
+            test("Then the bill is created", async() => {
+
+                document.body.innerHTML = NewBillUI();
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+
+                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+                window.localStorage.setItem('user', JSON.stringify({
+                    type: 'Employee',
+                    email: "azerty@email.com",
+                }))
 
                 const onNavigate = (pathname) => {
                     document.body.innerHTML = ROUTES({ pathname })
@@ -128,26 +103,6 @@ describe("Given I am connected as an employee", () => {
                     localStorage: window.localStorage
                 })
 
-                // const html = NewBillUI()
-
-                // document.body.innerHTML = html
-
-                const handleSubmit = jest.fn((e) => newBill.handleSubmit());
-
-                const file = new File(['(⌐□_□)'], 'test.jpg', { type: 'test/jpg' })
-
-                fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
-
-                const dataURL = screen.getByTestId('file').files[0].src
-                expect(dataURL).toMatchSnapshot(
-                    'data url in the image-preview src for this string: "(⌐□_□)"',
-                )
-
-                const changeFile = fireEvent.change(screen.getByTestId("file"), { target: { files: [file] } });
-                expect(changeFile).toBeTruthy();
-
-                newBill.fileUrl = dataURL;
-
                 const validBill = {
                     type: "Equipement et matériel",
                     name: "Clavier-test",
@@ -156,12 +111,10 @@ describe("Given I am connected as an employee", () => {
                     vat: 10,
                     pct: 10,
                     commentary: "Test",
-                    fileUrl: dataURL,
+                    fileUrl: "../img/0.jpg",
                     fileName: "test.jpg",
-                    email: "azerty@email.com",
                     status: "pending"
                 };
-
 
                 // Load the values in fields
                 screen.getByTestId("expense-type").value = validBill.type;
@@ -173,14 +126,20 @@ describe("Given I am connected as an employee", () => {
                 screen.getByTestId("pct").value = validBill.pct;
                 screen.getByTestId("commentary").value = validBill.commentary;
 
+                newBill.fileName = validBill.fileName
+                newBill.fileUrl = validBill.fileUrl;
+
+                newBill.createBill = jest.fn();
+                const handleSubmit = jest.fn(newBill.handleSubmit);
+
                 const form = screen.getByTestId("form-new-bill");
+                form.addEventListener("submit", handleSubmit);
 
                 userEvent.click(screen.getByText("Envoyer"))
 
-                //expect(handleSubmit).toHaveBeenCalled()
-
-                expect(handleSubmit).toHaveBeenCalledWith({
-                    validBill
+                expect(handleSubmit).toHaveBeenCalled()
+                expect(newBill.createBill).toHaveBeenCalledWith({
+                    ...validBill
                 })
             })
         })

@@ -1,3 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Given I am connected as an employee When I am on NewBill Page When I submit the form completed Then the bill is created: data url in the image-preview src for this string: "(⌐□_□)" 1`] = `undefined`;
+
+exports[`Given I am connected as an employee When I am on NewBill Page When I upload an image in file input Then one file should be uploaded without error: data url in the image-preview src for this string: "(⌐□_□)" 1`] = `undefined`;
+
+exports[`Given I am connected as an employee When I am on NewBill Page When I upload something other than an image in file input Then one file should be uploaded with an error: data url in the image-preview src for this string: "(⌐□_□)" 1`] = `undefined`;

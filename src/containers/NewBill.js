@@ -17,44 +17,32 @@ export default class NewBill {
     }
     handleChangeFile = e => {
 
-        const filePath = e.target.files[0].name.split(/\\/g)
-        this.fileName = filePath[filePath.length - 1]
+        const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+        const filePath = e.target.value.split(/\\/g)
+        const fileName = filePath[filePath.length - 1]
 
-        const imageRegex = /\.(jpe?g|png)$/;
+        const fileExtension = fileName.split(".").pop()
+        const acceptedExtensions = ["jpg", "jpeg", "png"]
+        const inputFileElement = this.document.querySelector(`input[data-testid="file"]`)
 
-        const inputFileElement = this.document.querySelector(`input[data-testid="file"]`);
-
-        if (imageRegex.test(this.fileName)) {
-            inputFileElement.classList.remove('is-invalid');
-
+        if (acceptedExtensions.includes(fileExtension)) {
+            inputFileElement.classList.remove('is-invalid')
+                /* istanbul ignore next */
+            this.firestore.storage
+                .ref(`justificatifs/${fileName}`)
+                .put(file)
+                .then((snapshot) => snapshot.ref.getDownloadURL())
+                .then((url) => {
+                    this.fileUrl = url;
+                    this.fileName = fileName;
+                });
         } else {
             inputFileElement.classList.add('is-invalid');
-            inputFileElement.value = null;
         }
     }
 
     handleSubmit = e => {
-        e.preventDefault();
-
-        if (typeof jest !== 'undefined') {
-            // in jest environment
-            this.prepareBill(e)
-        } else {
-            // in prod environment
-            /* istanbul ignore next */
-            this.firestore.storage
-                .ref(`justificatifs/${this.fileName}`)
-                .put(this.document.querySelector(`input[data-testid="file"]`).files[0])
-                .then(snapshot => snapshot.ref.getDownloadURL())
-                .then(url => {
-                    this.fileUrl = url
-                }).then(() => {
-                    this.prepareBill(e)
-                })
-        }
-    }
-
-    prepareBill = (e) => {
+        e.preventDefault()
         console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
         const email = JSON.parse(localStorage.getItem("user")).email
         const bill = {
@@ -70,14 +58,7 @@ export default class NewBill {
             fileName: this.fileName,
             status: 'pending'
         }
-
-        if (typeof jest !== 'undefined') {
-            // in jest environment
-        } else {
-            // in prod environment
-            /* istanbul ignore next */
-            this.createBill(bill)
-        }
+        this.createBill(bill)
         this.onNavigate(ROUTES_PATH['Bills'])
     }
 
