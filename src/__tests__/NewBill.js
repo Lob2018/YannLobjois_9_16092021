@@ -66,7 +66,7 @@ describe("Given I am connected as an employee", () => {
 
 
 
-                document.body.innerHTML = NewBillUI();
+
                 // define the window object localStorage
                 Object.defineProperty(window, "localStorage", { value: localStorageMock });
                 // define the user's object property
