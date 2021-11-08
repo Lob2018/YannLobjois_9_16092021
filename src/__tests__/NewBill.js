@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/dom"
+import { fireEvent, screen, waitFor } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 
@@ -26,7 +26,7 @@ describe("Given I am connected as an employee", () => {
             expect(screen.getByRole("button")).toBeTruthy();
         })
         describe("When I upload an image in file input", () => {
-            test("Then one file should be uploaded without error", async() => {
+            test("Then one file should be uploaded", async() => {
 
                 document.body.innerHTML = NewBillUI();
                 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
@@ -51,45 +51,12 @@ describe("Given I am connected as an employee", () => {
                 input.addEventListener("change", changeFile);
 
                 userEvent.upload(input, file)
-                expect(changeFile).toHaveBeenCalled();
-
-                expect(input.files[0]).toStrictEqual(file)
-                expect(input.files).toHaveLength(1)
-                expect(input.files[0].name).toBe('test.jpg');
-                expect(input.classList.contains('is-invalid')).toBe(false)
-            })
-        })
-        describe("When I upload something other than an image in file input", () => {
-            test("Then one file should be uploaded with an error", () => {
-                document.body.innerHTML = NewBillUI();
-                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-
-                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-                window.localStorage.setItem('user', JSON.stringify({
-                    type: 'Employee',
-                    email: "azerty@email.com",
-                }))
-                const newBill = new NewBill({
-                    document,
-                    onNavigate: () => {},
-                    firestore: null,
-                    localStorage: window.localStorage
-                })
-
-                const changeFile = jest.fn((e) => newBill.handleChangeFile(e))
-                const file = new File(['document.pdf'], 'document.pdf', { type: 'application/pdf' });
-
-                const input = screen.getByTestId("file")
-                input.addEventListener("change", changeFile);
-
-                fireEvent.change(input, { target: { files: [file] } })
 
                 expect(changeFile).toHaveBeenCalled();
 
                 expect(input.files[0]).toStrictEqual(file)
+                expect(input.files.item(0)).toStrictEqual(file)
                 expect(input.files).toHaveLength(1)
-                expect(input.files[0].name).toBe('document.pdf');
-                expect(input.classList.contains('is-invalid')).toBe(true)
             })
         })
         describe("When I submit the form completed", () => {

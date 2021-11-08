@@ -25,10 +25,9 @@ export default class NewBill {
         const formats = ["jpg", "jpeg", "png"];
 
         const inputFileElement = this.document.querySelector(`input[data-testid="file"]`);
-
+        /* istanbul ignore next */
         if (formats.includes(fileExtension)) {
             inputFileElement.classList.remove("is-invalid");
-            /* istanbul ignore next */
             this.firestore.storage
                 .ref(`justificatifs/${fileName}`)
                 .put(file)
