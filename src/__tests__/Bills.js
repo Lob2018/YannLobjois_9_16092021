@@ -1,20 +1,13 @@
-import { screen } from "@testing-library/dom"
+import { screen, fireEvent } from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
 
-import firestore from "../app/Firestore";
 import { localStorageMock } from "../__mocks__/localStorage.js"
 import Router from "../app/Router";
-
 import Bills from "../containers/Bills.js";
-import { ROUTES } from "../constants/routes.js";
-import { fireEvent } from "@testing-library/dom"
 
+import firestore from "../app/Firestore";
 import firebase from "../__mocks__/firebase"
-
-
-
-
 
 describe("Given I am connected as an employee", () => {
     // #1 composant views/BillsUI
@@ -90,14 +83,10 @@ describe("Given I am connected as an employee", () => {
         // #2 composant container/Bills
         describe("When I click on new bill button", () => {
             test("Then I should be redirected to New Bill page", () => {
-                // needed for the Bills object
-                const onNavigate = (pathname) => {
-                    document.body.innerHTML = ROUTES({ pathname })
-                };
                 // Create a Bills object
                 const billsContainer = new Bills({
                     document,
-                    onNavigate,
+                    onNavigate: () => {},
                     localStorage: null,
                     firestore: null,
                 });
@@ -125,12 +114,9 @@ describe("Given I am connected as an employee", () => {
                 const html = BillsUI({ data: bills });
                 document.body.innerHTML = html;
 
-                const onNavigate = (pathname) => {
-                    document.body.innerHTML = ROUTES({ pathname });
-                };
                 const billsContainer = new Bills({
                     document,
-                    onNavigate,
+                    onNavigate: () => {},
                     localStorage: null,
                     firestore: null,
                 });

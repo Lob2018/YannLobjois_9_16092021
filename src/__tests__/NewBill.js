@@ -5,7 +5,6 @@ import NewBill from "../containers/NewBill.js"
 import userEvent from "@testing-library/user-event";
 import { localStorageMock } from "../__mocks__/localStorage";
 import firebase from "../__mocks__/firebase.js";
-import { ROUTES } from "../constants/routes"
 
 
 describe("Given I am connected as an employee", () => {
@@ -27,7 +26,7 @@ describe("Given I am connected as an employee", () => {
             expect(screen.getByRole("button")).toBeTruthy();
         })
         describe("When I upload an image in file input", () => {
-            test("Then one file should be uploaded without error", () => {
+            test("Then one file should be uploaded without error", async() => {
 
                 document.body.innerHTML = NewBillUI();
                 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
@@ -38,67 +37,26 @@ describe("Given I am connected as an employee", () => {
                     email: "azerty@email.com",
                 }))
 
-                const onNavigate = (pathname) => {
-                    document.body.innerHTML = ROUTES({ pathname })
-                }
                 const newBill = new NewBill({
                     document,
-                    onNavigate,
+                    onNavigate: () => {},
                     firestore: null,
                     localStorage: window.localStorage
                 })
 
-                const changeFile = jest.fn(newBill.handleChangeFile);
+                const changeFile = jest.fn((e) => newBill.handleChangeFile(e))
                 const file = new File(['test.jpg'], 'test.jpg', { type: 'image/jpg' })
 
                 const input = screen.getByTestId("file")
                 input.addEventListener("change", changeFile);
 
-                fireEvent.change(input, { target: { files: [file] } })
-
+                userEvent.upload(input, file)
                 expect(changeFile).toHaveBeenCalled();
 
                 expect(input.files[0]).toStrictEqual(file)
                 expect(input.files).toHaveLength(1)
                 expect(input.files[0].name).toBe('test.jpg');
                 expect(input.classList.contains('is-invalid')).toBe(false)
-
-
-
-
-
-                // // define the window object localStorage
-                // Object.defineProperty(window, "localStorage", { value: localStorageMock });
-                // // define the user's object property
-                // const user = JSON.stringify({
-                //     type: "Employee",
-                //     email: "azerty@email.com",
-                // });
-                // // set localStorage user's type as Employee with email
-                // window.localStorage.setItem("user", user);
-                // // define the window object location to the employee's new bill
-                // Object.defineProperty(window, "location", {
-                //     value: {
-                //         pathname: "/",
-                //         hash: "#employee/bill/new",
-                //     },
-                // });
-                // const newBill = new NewBill({
-                //     document,
-                //     onNavigate: () => {},
-                //     firestore: null,
-                //     localStorage: window.localStorage,
-                // });
-                // document.body.innerHTML = NewBillUI();
-                // const file = jest.fn((e) => newBill.handleChangeFile(e))
-                // const input = screen.getByTestId("file")
-                // input.addEventListener("change", file)
-                // const files = new File(["test.jpg"], "test.jpg", { type: "image/jpg" })
-                // userEvent.upload(input, files)
-                // expect(file).toHaveBeenCalled();
-                // expect(input.classList.contains('is-invalid')).toBe(false)
-
-
             })
         })
         describe("When I upload something other than an image in file input", () => {
@@ -111,17 +69,14 @@ describe("Given I am connected as an employee", () => {
                     type: 'Employee',
                     email: "azerty@email.com",
                 }))
-                const onNavigate = (pathname) => {
-                    document.body.innerHTML = ROUTES({ pathname })
-                }
                 const newBill = new NewBill({
                     document,
-                    onNavigate,
+                    onNavigate: () => {},
                     firestore: null,
                     localStorage: window.localStorage
                 })
 
-                const changeFile = jest.fn(newBill.handleChangeFile);
+                const changeFile = jest.fn((e) => newBill.handleChangeFile(e))
                 const file = new File(['document.pdf'], 'document.pdf', { type: 'application/pdf' });
 
                 const input = screen.getByTestId("file")
@@ -149,12 +104,9 @@ describe("Given I am connected as an employee", () => {
                     email: "azerty@email.com",
                 }))
 
-                const onNavigate = (pathname) => {
-                    document.body.innerHTML = ROUTES({ pathname })
-                }
                 const newBill = new NewBill({
                     document,
-                    onNavigate,
+                    onNavigate: () => {},
                     firestore: null,
                     localStorage: window.localStorage
                 })
@@ -186,10 +138,11 @@ describe("Given I am connected as an employee", () => {
                 newBill.fileUrl = validBill.fileUrl;
 
                 newBill.createBill = jest.fn();
-                const handleSubmit = jest.fn(newBill.handleSubmit);
+                const handleSubmit = jest.fn((e) => newBill.handleSubmit(e))
 
                 const form = screen.getByTestId("form-new-bill");
                 form.addEventListener("submit", handleSubmit);
+                expect(screen.getByText('Envoyer').type).toBe('submit')
 
                 userEvent.click(screen.getByText("Envoyer"))
 
