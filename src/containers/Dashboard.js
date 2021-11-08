@@ -181,8 +181,8 @@ export default class {
                 .bill(bill.id)
                 .update(bill)
                 .then(bill => bill)
-                .then(() => this.onNavigate(ROUTES_PATH['Dashboard']))
                 .catch(console.log)
+                .finally(() => this.onNavigate(ROUTES_PATH['Dashboard']))
         } else this.onNavigate(ROUTES_PATH['Dashboard'])
     }
 }
