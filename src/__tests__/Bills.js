@@ -29,11 +29,9 @@ describe("Given I am connected as an employee", () => {
     })
     describe("When I am on Bills Page", () => {
         test("Then bill icon in vertical layout should be highlighted", () => {
-            // Jest's simulation module for the Firestore's class
-            // mock the Firestore's class
-            jest.mock("../app/Firestore");
-            // get the bills from firestore
+            // Implement the firestore's bills method (Firestore is already instanciate)
             firestore.bills = () => ({
+                // Mock async function as the value of the firestore's get's key
                 get: jest.fn().mockResolvedValue()
             });
             // define the window object localStorage
