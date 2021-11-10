@@ -31,7 +31,7 @@ describe("Given I am connected as an employee", () => {
         test("Then bill icon in vertical layout should be highlighted", () => {
             // Implement the firestore's bills method (Firestore is already instanciate)
             firestore.bills = () => ({
-                // Mock async function with the get keyword
+                // Mock async function with the get firebase's method
                 get: jest.fn().mockResolvedValue()
             });
             // define the window object localStorage
