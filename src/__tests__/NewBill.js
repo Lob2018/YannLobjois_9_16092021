@@ -29,7 +29,6 @@ describe("Given I am connected as an employee", () => {
             test("Then one file should be uploaded", async() => {
 
                 document.body.innerHTML = NewBillUI();
-                Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
                 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
                 window.localStorage.setItem('user', JSON.stringify({
